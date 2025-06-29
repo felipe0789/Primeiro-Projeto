@@ -6,11 +6,29 @@ from sqlalchemy import func
 import io
 import csv
 import pdfkit
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import json
+
+# Função para carregar configurações globais
+def load_global_config():
+    try:
+        with open('config.json', 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Retorna um padrão se o arquivo não existir ou for inválido
+        return {"SESSION_LIFETIME_MINUTES": 60}
+
+# Função para salvar configurações globais
+def save_global_config(config_data):
+    with open('config.json', 'w') as f:
+        json.dump(config_data, f, indent=4)
 
 # Cria a instância da aplicação Flask
 app = Flask(__name__)
+
+# Carrega as configurações globais
+global_config = load_global_config()
 
 # Configurações
 # Caminho absoluto para o banco de dados na raiz do projeto
@@ -19,6 +37,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "rest
 app.config['SECRET_KEY'] = 'sua_chave_secreta_aqui'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['WKHTMLTOPDF_PATH'] = os.path.join(basedir, 'wkhtmltopdf')
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=global_config.get('SESSION_LIFETIME_MINUTES', 60))
 
 # Inicializa o banco de dados
 db = SQLAlchemy(app)
@@ -519,6 +538,7 @@ def inject_user_config():
 def configuracoes():
     config = current_user.configuracao
     if request.method == 'POST':
+        # Salva configurações do usuário
         theme = request.form.get('theme')
         items_per_page = request.form.get('items_per_page')
 
@@ -529,10 +549,19 @@ def configuracoes():
             config.items_per_page = int(items_per_page)
         
         db.session.commit()
+
+        # Salva configurações globais
+        session_lifetime = request.form.get('session_lifetime')
+        if session_lifetime and session_lifetime.isdigit():
+            global_config['SESSION_LIFETIME_MINUTES'] = int(session_lifetime)
+            save_global_config(global_config)
+            # A alteração da sessão só terá efeito no próximo login
+            flash('Configuração de sessão salva. Ela será aplicada no seu próximo login.', 'info')
+
         flash('Configurações salvas com sucesso!', 'success')
         return redirect(url_for('configuracoes'))
     
-    return render_template('configuracoes.html', config=config)
+    return render_template('configuracoes.html', config=config, global_config=global_config)
 
 if __name__ == '__main__':
     app.run(debug=True)

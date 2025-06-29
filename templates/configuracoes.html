@@ -43,6 +43,24 @@
                     <small class="form-text text-muted">Defina quantos restaurantes são exibidos por vez na tabela principal.</small>
                 </div>
             </div>
+
+            <!-- Seção de Segurança -->
+            <div class="panel-header" style="border-top: 1px solid var(--gray-200);">
+                <h3 class="panel-title">Segurança</h3>
+            </div>
+            <div class="p-4">
+                <div class="mb-3">
+                    <label for="sessionLifetime" class="form-label fw-semibold">Tempo de Expiração da Sessão (minutos)</label>
+                    <input type="number" class="form-control" id="sessionLifetime" name="session_lifetime" 
+                           value="{{ global_config.SESSION_LIFETIME_MINUTES }}" 
+                           style="max-width: 150px;" min="1">
+                    <small class="form-text text-muted">
+                        Tempo que um usuário permanece logado antes de ser desconectado automaticamente. 
+                        A alteração afetará os usuários no próximo login.
+                    </small>
+                </div>
+            </div>
+
             <div class="modal-footer">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Salvar Configurações
