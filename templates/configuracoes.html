@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações - RestaurantApp{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+<li class="breadcrumb-item active">Configurações</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Title -->
+    <div class="page-title">
+        <h2>Configurações do Sistema</h2>
+        <p class="page-subtitle">Personalize a aparência e o comportamento da aplicação.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('configuracoes') }}">
+        <div class="main-panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Aparência e Layout</h3>
+            </div>
+            <div class="p-4">
+                <!-- Tema da Aplicação -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Tema da Aplicação</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="themeSwitch" name="theme" value="dark" {% if config.theme == 'dark' %}checked{% endif %}>
+                        <label class="form-check-label" for="themeSwitch">Modo Escuro (Dark Mode)</label>
+                    </div>
+                    <small class="form-text text-muted">Alterne para um visual com cores escuras para reduzir o cansaço visual.</small>
+                </div>
+
+                <!-- Itens por Página -->
+                <div class="mb-3">
+                    <label for="itemsPerPage" class="form-label fw-semibold">Restaurantes por Página</label>
+                    <select class="form-select" id="itemsPerPage" name="items_per_page" style="max-width: 150px;">
+                        <option value="5" {% if config.items_per_page == 5 %}selected{% endif %}>5</option>
+                        <option value="10" {% if config.items_per_page == 10 %}selected{% endif %}>10</option>
+                        <option value="25" {% if config.items_per_page == 25 %}selected{% endif %}>25</option>
+                        <option value="50" {% if config.items_per_page == 50 %}selected{% endif %}>50</option>
+                    </select>
+                    <small class="form-text text-muted">Defina quantos restaurantes são exibidos por vez na tabela principal.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Salvar Configurações
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const themeSwitch = document.getElementById('themeSwitch');
+    
+    // Hidden input para garantir que 'light' seja enviado se o switch estiver desligado
+    const form = themeSwitch.closest('form');
+    let hiddenInput = form.querySelector('input[name="theme"][type="hidden"]');
+    if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'theme';
+        hiddenInput.value = 'light';
+        form.prepend(hiddenInput);
+    }
+
+    themeSwitch.addEventListener('change', function() {
+        if (this.checked) {
+            document.body.classList.add('dark-mode');
+            // Quando o switch está ligado (dark), o hidden input não é necessário
+            hiddenInput.disabled = true;
+        } else {
+            document.body.classList.remove('dark-mode');
+            // Quando o switch está desligado (light), reativamos o hidden input
+            hiddenInput.disabled = false;
+        }
+    });
+});
+</script>
+{% endblock %} 

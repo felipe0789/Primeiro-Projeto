@@ -51,6 +51,7 @@ class User(UserMixin, db.Model):
     cpf_cnpj = db.Column(db.String(20), unique=True, nullable=True)
     
     avaliacoes = db.relationship('Avaliacao', backref='user', lazy=True)
+    configuracao = db.relationship('Configuracao', backref='user', uselist=False, cascade="all, delete-orphan")
 
 class Avaliacao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,6 +60,12 @@ class Avaliacao(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     restaurante_id = db.Column(db.Integer, db.ForeignKey('restaurante.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Configuracao(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    theme = db.Column(db.String(20), nullable=False, default='light')
+    items_per_page = db.Column(db.Integer, nullable=False, default=10)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -206,7 +213,9 @@ def api_restaurantes():
     termo_busca = request.args.get('busca', '').strip()
     filtro_status = request.args.get('filtro', 'todos')
     page = request.args.get('page', 1, type=int)
-    per_page = 10 # Define quantos restaurantes por página
+    
+    # Usa a configuração do usuário ou um padrão seguro
+    per_page = current_user.configuracao.items_per_page if current_user.configuracao else 10
 
     query = Restaurante.query
 
@@ -494,6 +503,36 @@ def alterar_senha():
         db.session.rollback()
         return jsonify({'sucesso': False, 'mensagem': f'Erro ao alterar a senha: {e}'}), 500
 
-# Permite executar a aplicação diretamente com 'python app.py'
+@app.context_processor
+def inject_user_config():
+    if current_user.is_authenticated:
+        # Garante que a configuração exista
+        if not current_user.configuracao:
+            config = Configuracao(user_id=current_user.id)
+            db.session.add(config)
+            db.session.commit()
+        return dict(user_config=current_user.configuracao)
+    return dict(user_config=None)
+
+@app.route('/configuracoes', methods=['GET', 'POST'])
+@login_required
+def configuracoes():
+    config = current_user.configuracao
+    if request.method == 'POST':
+        theme = request.form.get('theme')
+        items_per_page = request.form.get('items_per_page')
+
+        if theme in ['light', 'dark']:
+            config.theme = theme
+        
+        if items_per_page and items_per_page.isdigit():
+            config.items_per_page = int(items_per_page)
+        
+        db.session.commit()
+        flash('Configurações salvas com sucesso!', 'success')
+        return redirect(url_for('configuracoes'))
+    
+    return render_template('configuracoes.html', config=config)
+
 if __name__ == '__main__':
     app.run(debug=True)
