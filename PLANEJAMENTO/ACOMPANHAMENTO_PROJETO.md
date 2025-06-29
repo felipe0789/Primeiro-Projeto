@@ -19,4 +19,7 @@ Use os links abaixo para navegar até o detalhamento de cada fase.
   - *Aqui, adicionaremos o sistema de login para proteger o acesso à aplicação.*
 
 - [**Fase 5: Estilização e Finalização**](./FASE_5_ESTILIZACAO.md)
-  - *Com todas as funcionalidades prontas, vamos focar na aparência e na experiência de uso.* 
+  - *Com todas as funcionalidades prontas, vamos focar na aparência e na experiência de uso.*
+
+- [**Fase 8: Gerenciamento de Perfil de Usuário**](./FASE_8_PERFIL_USUARIO.md)
+  - *Nesta fase, criaremos a funcionalidade para que os usuários possam visualizar e editar seus próprios dados cadastrais.* 

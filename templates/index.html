@@ -102,7 +102,7 @@
                     </thead>
                     <tbody id="restaurantesTableBody">
                         {% for restaurante in restaurantes %}
-                        <tr class="restaurant-row" data-status="{{ restaurante.ativo|lower }}">
+                        <tr class="restaurant-row" data-status="{{ 'ativo' if restaurante.ativo else 'inativo' }}">
                             <td>
                                 <div class="restaurant-name">{{ restaurante.nome }}</div>
                                 <div class="restaurant-category">{{ restaurante.tipo_cozinha }}</div>
@@ -110,17 +110,17 @@
                             <td>{{ restaurante.endereco }}</td>
                             <td>
                                 <button class="status-indicator {{ 'active' if restaurante.ativo else 'inactive' }}"
-                                        onclick="alternarStatus({{ restaurante.id }})">
+                                        data-action="toggle-status" data-id="{{ restaurante.id }}">
                                     <i class="fas fa-circle"></i>
                                     {{ 'Ativo' if restaurante.ativo else 'Inativo' }}
                                 </button>
                             </td>
                             <td>
                                 <div class="action-menu">
-                                    <button class="action-btn" onclick="editarRestaurante({{ restaurante.id }}, '{{ restaurante.nome }}', '{{ restaurante.endereco }}', '{{ restaurante.tipo_cozinha }}')" title="Editar">
+                                    <button class="action-btn" data-action="edit" data-id="{{ restaurante.id }}" data-nome="{{ restaurante.nome | e }}" data-endereco="{{ restaurante.endereco | e }}" data-tipo-cozinha="{{ restaurante.tipo_cozinha | e }}" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="action-btn" onclick="confirmarExclusao({{ restaurante.id }}, '{{ restaurante.nome }}')" title="Excluir">
+                                    <button class="action-btn" data-action="delete" data-id="{{ restaurante.id }}" data-nome="{{ restaurante.nome | e }}" title="Excluir">
                                         <i class="fas fa-trash text-danger"></i>
                                     </button>
                                 </div>
@@ -137,19 +137,19 @@
             <div class="quick-actions">
                 <h4>Ações Rápidas</h4>
                 <ul class="action-list">
-                    <li class="action-item" onclick="location.href='{{ url_for('adicionar_restaurante') }}'">
+                    <li class="action-item" data-action="navigate" data-url="{{ url_for('adicionar_restaurante') }}" style="cursor: pointer;">
                         <div class="action-icon">
                             <i class="fas fa-plus"></i>
                         </div>
                         <span>Adicionar Restaurante</span>
                     </li>
-                    <li class="action-item" onclick="exportarDados()">
+                    <li class="action-item" data-action="export" style="cursor: pointer;">
                         <div class="action-icon">
                             <i class="fas fa-download"></i>
                         </div>
                         <span>Exportar Dados</span>
                     </li>
-                    <li class="action-item" onclick="location.href='{{ url_for('relatorio') }}'">
+                    <li class="action-item" data-action="navigate" data-url="{{ url_for('relatorio') }}" style="cursor: pointer;">
                         <div class="action-icon">
                             <i class="fas fa-chart-bar"></i>
                         </div>
@@ -298,16 +298,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     </td>
                     <td>${r.endereco}</td>
                     <td>
-                        <button class="status-indicator ${statusClass}" onclick="alternarStatus(${r.id})">
+                        <button class="status-indicator ${statusClass}" data-action="toggle-status" data-id="${r.id}">
                             <i class="fas fa-circle"></i> ${statusText}
                         </button>
                     </td>
                     <td>
                         <div class="action-menu">
-                            <button class="action-btn" onclick="editarRestaurante(${r.id}, '${r.nome}', '${r.endereco}', '${r.tipo_cozinha}')" title="Editar">
+                            <button class="action-btn" data-action="edit" data-id="${r.id}" data-nome="${r.nome}" data-endereco="${r.endereco}" data-tipo-cozinha="${r.tipo_cozinha}" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-btn" onclick="confirmarExclusao(${r.id}, '${r.nome}')" title="Excluir">
+                            <button class="action-btn" data-action="delete" data-id="${r.id}" data-nome="${r.nome}" title="Excluir">
                                 <i class="fas fa-trash text-danger"></i>
                             </button>
                         </div>
@@ -339,8 +339,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    // Funções de ação (Editar, Excluir, etc.)
-    window.editarRestaurante = function(id, nome, endereco, tipoCozinha) {
+    // Funções de ação
+    function editarRestaurante(id, nome, endereco, tipoCozinha) {
         editForm.action = `/editar_restaurante/${id}`;
         editNome.value = nome;
         editEndereco.value = endereco;
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
         editModal.show();
     };
 
-    window.confirmarExclusao = function(restauranteId, restauranteNome) {
+    function confirmarExclusao(restauranteId, restauranteNome) {
         mostrarModalConfirmacao(
             'Confirmar Exclusão',
             `Tem certeza que deseja excluir o restaurante "${restauranteNome}"? Esta ação não pode ser desfeita.`,
@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     };
 
-    window.alternarStatus = function(restauranteId) {
+    function alternarStatus(restauranteId) {
         fetch(`/alternar_status/${restauranteId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
@@ -379,9 +379,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
     };
-
-    // Funções de placeholder
-    window.exportarDados = function() {
+    
+    function exportarDados() {
         mostrarModalConfirmacao(
             'Exportar para CSV',
             'Deseja exportar a visualização atual da tabela para um arquivo CSV?',
@@ -392,10 +391,34 @@ document.addEventListener('DOMContentLoaded', function () {
             'confirm-info'
         );
     };
-    
-    window.gerarRelatorio = function() {
-        mostrarModal('Funcionalidade Futura', 'A funcionalidade de gerar relatórios ainda não foi implementada.', 'info');
-    };
+
+    // Event Delegation para todas as ações
+    document.body.addEventListener('click', function(event) {
+        const target = event.target.closest('[data-action]');
+        if (!target) return;
+
+        event.preventDefault();
+        const action = target.dataset.action;
+        const dataset = target.dataset;
+
+        switch (action) {
+            case 'toggle-status':
+                alternarStatus(dataset.id);
+                break;
+            case 'edit':
+                editarRestaurante(dataset.id, dataset.nome, dataset.endereco, dataset.tipoCozinha);
+                break;
+            case 'delete':
+                confirmarExclusao(dataset.id, dataset.nome);
+                break;
+            case 'navigate':
+                window.location.href = dataset.url;
+                break;
+            case 'export':
+                exportarDados();
+                break;
+        }
+    });
 
     // Carga inicial dos dados
     carregarRestaurantes();

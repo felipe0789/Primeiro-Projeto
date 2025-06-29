@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, make_response
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, make_response, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -42,6 +42,14 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
+    
+    # Novos campos para o perfil do usuário
+    nome_completo = db.Column(db.String(200), nullable=True)
+    email = db.Column(db.String(120), unique=True, nullable=True)
+    telefone = db.Column(db.String(20), nullable=True)
+    endereco = db.Column(db.String(250), nullable=True)
+    cpf_cnpj = db.Column(db.String(20), unique=True, nullable=True)
+    
     avaliacoes = db.relationship('Avaliacao', backref='user', lazy=True)
 
 class Avaliacao(db.Model):
@@ -61,7 +69,7 @@ def load_user(user_id):
 def create_tables():
     db.create_all()
     if not User.query.filter_by(username='admin').first():
-        hashed_password = generate_password_hash('password', method='pbkdf2:sha256')
+        hashed_password = generate_password_hash('admin')
         admin_user = User(username='admin', password=hashed_password)
         db.session.add(admin_user)
         db.session.commit()
@@ -338,7 +346,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Logout realizado com sucesso!', 'info')
+    flash('Logout realizado com sucesso.', 'info')
     return redirect(url_for('login'))
 
 # --- Rotas de Relatório ---
@@ -427,6 +435,54 @@ def relatorio_pdf():
     except Exception as e:
         print(f"Erro ao gerar PDF: {e}")
         return "Erro ao gerar PDF. Verifique os logs do servidor.", 500
+
+# Rota para o perfil do usuário
+@app.route('/perfil', methods=['GET', 'POST'])
+@login_required
+def perfil():
+    if request.method == 'POST':
+        current_user.email = request.form.get('email')
+        current_user.nome_completo = request.form.get('nome_completo')
+        current_user.telefone = request.form.get('telefone')
+        current_user.endereco = request.form.get('endereco')
+        current_user.cpf_cnpj = request.form.get('cpf_cnpj')
+        
+        try:
+            db.session.commit()
+            flash('Perfil atualizado com sucesso!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao atualizar o perfil: {e}', 'danger')
+        
+        return redirect(url_for('perfil'))
+    
+    return render_template('perfil.html')
+
+@app.route('/alterar_senha', methods=['POST'])
+@login_required
+def alterar_senha():
+    dados = request.get_json()
+    senha_atual = dados.get('senha_atual')
+    nova_senha = dados.get('nova_senha')
+    confirmar_senha = dados.get('confirmar_senha')
+
+    if not all([senha_atual, nova_senha, confirmar_senha]):
+        return jsonify({'sucesso': False, 'mensagem': 'Todos os campos são obrigatórios.'}), 400
+
+    if not check_password_hash(current_user.password, senha_atual):
+        return jsonify({'sucesso': False, 'mensagem': 'A senha atual está incorreta.'}), 403
+    
+    if nova_senha != confirmar_senha:
+        return jsonify({'sucesso': False, 'mensagem': 'A nova senha e a confirmação não correspondem.'}), 400
+
+    current_user.password = generate_password_hash(nova_senha)
+    
+    try:
+        db.session.commit()
+        return jsonify({'sucesso': True, 'mensagem': 'Senha alterada com sucesso!'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'sucesso': False, 'mensagem': f'Erro ao alterar a senha: {e}'}), 500
 
 # Permite executar a aplicação diretamente com 'python app.py'
 if __name__ == '__main__':

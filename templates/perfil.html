@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Perfil - RestaurantApp{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+<li class="breadcrumb-item active">Meu Perfil</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Cabeçalho da Página -->
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-user-edit me-3"></i>Meu Perfil
+                </h1>
+                <p class="page-subtitle">Visualize e edite suas informações pessoais e de segurança.</p>
+            </div>
+            <div class="page-actions">
+                <button type="button" class="btn btn-outline-secondary" id="btnAlterarSenha" data-bs-toggle="modal" data-bs-target="#alterarSenhaModal">
+                    <i class="fas fa-key me-2"></i>Alterar Senha
+                </button>
+                <button type="button" class="btn btn-primary" id="btnEditarPerfil">
+                    <i class="fas fa-pencil-alt me-2"></i>Editar Perfil
+                </button>
+                <button type="submit" form="formPerfil" class="btn btn-success d-none" id="btnSalvarPerfil">
+                    <i class="fas fa-save me-2"></i>Salvar Alterações
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário de Perfil -->
+    <form id="formPerfil" method="POST" action="{{ url_for('perfil') }}">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0"><i class="fas fa-id-card me-2"></i>Informações Cadastrais</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="username" class="form-label">Nome de Usuário</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" readonly>
+                        <small class="form-text text-muted">O nome de usuário não pode ser alterado.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input type="email" class="form-control perfil-campo" id="email" name="email" value="{{ current_user.email or '' }}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nome_completo" class="form-label">Nome Completo</label>
+                        <input type="text" class="form-control perfil-campo" id="nome_completo" name="nome_completo" value="{{ current_user.nome_completo or '' }}" disabled>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="telefone" class="form-label">Telefone</label>
+                        <input type="text" class="form-control perfil-campo" id="telefone" name="telefone" value="{{ current_user.telefone or '' }}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="cpf_cnpj" class="form-label">CPF / CNPJ</label>
+                        <input type="text" class="form-control perfil-campo" id="cpf_cnpj" name="cpf_cnpj" value="{{ current_user.cpf_cnpj or '' }}" disabled>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control perfil-campo" id="endereco" name="endereco" value="{{ current_user.endereco or '' }}" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Modal de Alteração de Senha -->
+<div class="modal fade" id="alterarSenhaModal" tabindex="-1" aria-labelledby="alterarSenhaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alterarSenhaModalLabel"><i class="fas fa-key me-2"></i>Alterar Senha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formAlterarSenha">
+                <div class="modal-body">
+                    <div id="senha-alert-placeholder"></div>
+                    <div class="mb-3">
+                        <label for="senha_atual" class="form-label">Senha Atual</label>
+                        <input type="password" class="form-control" id="senha_atual" name="senha_atual" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nova_senha" class="form-label">Nova Senha</label>
+                        <input type="password" class="form-control" id="nova_senha" name="nova_senha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Nova Senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Lógica para Edição do Perfil
+    const btnEditarPerfil = document.getElementById('btnEditarPerfil');
+    const btnSalvarPerfil = document.getElementById('btnSalvarPerfil');
+    const camposPerfil = document.querySelectorAll('.perfil-campo');
+
+    btnEditarPerfil.addEventListener('click', function() {
+        camposPerfil.forEach(campo => {
+            campo.disabled = false;
+        });
+        btnEditarPerfil.classList.add('d-none');
+        btnSalvarPerfil.classList.remove('d-none');
+    });
+
+    // Lógica para Alteração de Senha
+    const formAlterarSenha = document.getElementById('formAlterarSenha');
+    const alterarSenhaModal = new bootstrap.Modal(document.getElementById('alterarSenhaModal'));
+    const alertPlaceholder = document.getElementById('senha-alert-placeholder');
+
+    const showAlert = (message, type) => {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+            `   <div>${message}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+            '</div>'
+        ].join('');
+        alertPlaceholder.innerHTML = ''; // Limpa alertas anteriores
+        alertPlaceholder.append(wrapper);
+    }
+
+    formAlterarSenha.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(formAlterarSenha);
+        const dados = Object.fromEntries(formData.entries());
+
+        fetch("{{ url_for('alterar_senha') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.sucesso) {
+                showAlert(data.mensagem, 'success');
+                formAlterarSenha.reset();
+                setTimeout(() => {
+                    alterarSenhaModal.hide();
+                    alertPlaceholder.innerHTML = '';
+                }, 2000); // Fecha o modal após 2 segundos
+            } else {
+                showAlert(data.mensagem, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showAlert('Ocorreu um erro inesperado. Tente novamente.', 'danger');
+        });
+    });
+});
+</script>
+{% endblock %} 
