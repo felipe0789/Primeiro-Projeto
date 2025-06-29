@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo 2 - Layout Cards Moderno</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* EXEMPLO 2: LAYOUT CARDS MODERNO */
+        :root {
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-info: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--card-bg) !important;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .navbar-text {
+            color: var(--text-secondary) !important;
+        }
+
+        .hero-section {
+            background: var(--gradient-primary);
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            margin-top: -2rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.total { background: var(--gradient-primary); }
+        .stat-icon.active { background: var(--gradient-success); }
+        .stat-icon.inactive { background: var(--gradient-warning); }
+        .stat-icon.add { background: var(--gradient-info); }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin: 4rem 0 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .filter-tab.active,
+        .filter-tab:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .restaurants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .restaurant-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restaurant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: #475569;
+        }
+
+        .restaurant-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .restaurant-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .restaurant-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--gradient-info);
+            color: var(--dark-bg);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .restaurant-address {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .restaurant-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.active {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .status-badge.inactive {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .restaurant-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .floating-add {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .floating-add:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 { font-size: 2rem; }
+            .restaurants-grid { grid-template-columns: 1fr; }
+            .filter-tabs { flex-direction: column; align-items: center; }
+            .stat-card { margin-bottom: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">🍽️ RestaurantApp</a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">Olá, Admin</span>
+                <a class="nav-link text-light" href="#">Sair</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Dashboard de Restaurantes</h1>
+                <p>Gerencie todos os seus restaurantes com um visual moderno e intuitivo</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Estatísticas -->
+        <div class="stats-grid">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-icon total">📊</div>
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-icon active">✅</div>
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Ativos</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-icon inactive">⏸️</div>
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Inativos</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-icon add">➕</div>
+                        <div class="stat-number">+</div>
+                        <div class="stat-label">Adicionar</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Title -->
+        <div class="section-title">
+            <h2>Seus Restaurantes</h2>
+            <p>Visualize e gerencie todos os restaurantes cadastrados</p>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-tabs">
+            <button class="filter-tab active">Todos</button>
+            <button class="filter-tab">Ativos</button>
+            <button class="filter-tab">Inativos</button>
+        </div>
+
+        <!-- Grid de Restaurantes -->
+        <div class="restaurants-grid">
+            <!-- Card 1 -->
+            <div class="restaurant-card">
+                <div class="restaurant-header">
+                    <div>
+                        <h3 class="restaurant-name">🍕 Pizzaria Bella Vista</h3>
+                        <span class="restaurant-type">Italiana</span>
+                    </div>
+                </div>
+                <div class="restaurant-address">
+                    📍 Rua das Flores, 123 - Centro
+                </div>
+                <div class="restaurant-status">
+                    <span class="status-badge active">🟢 Ativo</span>
+                </div>
+                <div class="restaurant-actions">
+                    <button class="btn-action btn-edit">✏️ Editar</button>
+                    <button class="btn-action btn-delete">🗑️ Excluir</button>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="restaurant-card">
+                <div class="restaurant-header">
+                    <div>
+                        <h3 class="restaurant-name">🍣 Sushi House</h3>
+                        <span class="restaurant-type">Japonesa</span>
+                    </div>
+                </div>
+                <div class="restaurant-address">
+                    📍 Av. Principal, 456 - Jardins
+                </div>
+                <div class="restaurant-status">
+                    <span class="status-badge active">🟢 Ativo</span>
+                </div>
+                <div class="restaurant-actions">
+                    <button class="btn-action btn-edit">✏️ Editar</button>
+                    <button class="btn-action btn-delete">🗑️ Excluir</button>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="restaurant-card">
+                <div class="restaurant-header">
+                    <div>
+                        <h3 class="restaurant-name">🍔 Burger King</h3>
+                        <span class="restaurant-type">Fast Food</span>
+                    </div>
+                </div>
+                <div class="restaurant-address">
+                    📍 Shopping Center, Loja 45
+                </div>
+                <div class="restaurant-status">
+                    <span class="status-badge inactive">🔴 Inativo</span>
+                </div>
+                <div class="restaurant-actions">
+                    <button class="btn-action btn-edit">✏️ Editar</button>
+                    <button class="btn-action btn-delete">🗑️ Excluir</button>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="restaurant-card">
+                <div class="restaurant-header">
+                    <div>
+                        <h3 class="restaurant-name">🥩 Churrascaria Gaúcha</h3>
+                        <span class="restaurant-type">Churrascaria</span>
+                    </div>
+                </div>
+                <div class="restaurant-address">
+                    📍 Rua do Comércio, 789 - Vila Nova
+                </div>
+                <div class="restaurant-status">
+                    <span class="status-badge active">🟢 Ativo</span>
+                </div>
+                <div class="restaurant-actions">
+                    <button class="btn-action btn-edit">✏️ Editar</button>
+                    <button class="btn-action btn-delete">🗑️ Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Flutuante -->
+    <button class="floating-add">+</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

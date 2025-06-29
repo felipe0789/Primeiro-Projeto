@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Pré-visualização do Relatório - RestaurantApp{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Title -->
+    <div class="page-title">
+        <h2>Pré-visualização do Relatório</h2>
+        <p class="page-subtitle">Foram encontrados <strong>{{ total_encontrado }}</strong> restaurantes com os filtros aplicados.</p>
+    </div>
+
+    <!-- Painel Principal -->
+    <div class="main-panel" style="width: 100%; grid-column: span 2;">
+        <!-- Cabeçalho do Painel -->
+        <div class="panel-header">
+            <h3 class="panel-title">Resultados</h3>
+            <div class="panel-actions">
+                <a href="{{ url_for('relatorio') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+                <button class="btn btn-primary btn-sm" onclick="confirmarGeracaoPDF()">
+                    <i class="fas fa-file-pdf"></i> Gerar PDF
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tabela de Dados -->
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Restaurante</th>
+                        <th>Endereço</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for restaurante in restaurantes %}
+                    <tr>
+                        <td>
+                            <div class="restaurant-name">{{ restaurante.nome }}</div>
+                            <div class="restaurant-category">{{ restaurante.tipo_cozinha }}</div>
+                        </td>
+                        <td>{{ restaurante.endereco }}</td>
+                        <td>
+                            <span class="status-indicator {{ 'active' if restaurante.ativo else 'inactive' }}">
+                                <i class="fas fa-circle"></i>
+                                {{ 'Ativo' if restaurante.ativo else 'Inativo' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">Nenhum restaurante corresponde aos filtros selecionados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Formulário oculto para enviar os mesmos filtros para a geração do PDF -->
+    <form id="pdfForm" action="{{ url_for('relatorio_pdf') }}" method="POST" style="display: none;">
+        <input type="hidden" name="status" value="{{ configuracao_relatorio.status }}">
+        <input type="hidden" name="tipos_cozinha" value="{{ configuracao_relatorio.tipos_cozinha }}">
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmarGeracaoPDF() {
+    mostrarModalConfirmacao(
+        'Confirmar Geração de PDF',
+        'Deseja gerar o relatório em PDF com os filtros atuais?',
+        function() {
+            document.getElementById('pdfForm').submit();
+        },
+        'confirm-info'
+    );
+}
+</script>
+{% endblock %} 

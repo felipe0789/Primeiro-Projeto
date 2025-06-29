@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - RestaurantApp{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Title -->
+    <div class="page-title">
+        <h2>Dashboard de Gestão</h2>
+        <p class="page-subtitle">Visão geral dos restaurantes cadastrados no sistema</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon total">
+                    <i class="fas fa-store"></i>
+                </div>
+            </div>
+            <div class="kpi-value" id="totalRestaurantes">{{ total_restaurantes }}</div>
+            <div class="kpi-label">Total de Restaurantes</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="kpi-value" id="restaurantesAtivos">{{ restaurantes_ativos }}</div>
+            <div class="kpi-label">Restaurantes Ativos</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon inactive">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+            </div>
+            <div class="kpi-value" id="restaurantesInativos">{{ restaurantes_inativos }}</div>
+            <div class="kpi-label">Restaurantes Inativos</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon growth">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+            <div class="kpi-value">{{ ((restaurantes_ativos / total_restaurantes * 100) if total_restaurantes > 0 else 0)|round(1) }}%</div>
+            <div class="kpi-label">Taxa de Ativação</div>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+        <!-- Main Panel -->
+        <div class="main-panel">
+            <!-- Panel Header -->
+            <div class="panel-header">
+                <h3 class="panel-title">Gestão de Restaurantes</h3>
+                <div class="panel-actions">
+                    <button class="btn btn-info btn-sm" onclick="exportarDados()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                    <a href="{{ url_for('adicionar_restaurante') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Novo Restaurante
+                    </a>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar restaurantes..." class="form-control">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="todos">
+                        <i class="fas fa-list"></i> Todos
+                    </button>
+                    <button class="filter-btn" data-filter="ativo">
+                        <i class="fas fa-check-circle"></i> Ativos
+                    </button>
+                    <button class="filter-btn" data-filter="inativo">
+                        <i class="fas fa-pause-circle"></i> Inativos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Restaurante</th>
+                            <th>Endereço</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="restaurantesTableBody">
+                        {% for restaurante in restaurantes %}
+                        <tr class="restaurant-row" data-status="{{ restaurante.ativo|lower }}">
+                            <td>
+                                <div class="restaurant-name">{{ restaurante.nome }}</div>
+                                <div class="restaurant-category">{{ restaurante.tipo_cozinha }}</div>
+                            </td>
+                            <td>{{ restaurante.endereco }}</td>
+                            <td>
+                                <button class="status-indicator {{ 'active' if restaurante.ativo else 'inactive' }}"
+                                        onclick="alternarStatus({{ restaurante.id }})">
+                                    <i class="fas fa-circle"></i>
+                                    {{ 'Ativo' if restaurante.ativo else 'Inativo' }}
+                                </button>
+                            </td>
+                            <td>
+                                <div class="action-menu">
+                                    <button class="action-btn" onclick="editarRestaurante({{ restaurante.id }}, '{{ restaurante.nome }}', '{{ restaurante.endereco }}', '{{ restaurante.tipo_cozinha }}')" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn" onclick="confirmarExclusao({{ restaurante.id }}, '{{ restaurante.nome }}')" title="Excluir">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar-panel">
+            <div class="quick-actions">
+                <h4>Ações Rápidas</h4>
+                <ul class="action-list">
+                    <li class="action-item" onclick="location.href='{{ url_for('adicionar_restaurante') }}'">
+                        <div class="action-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <span>Adicionar Restaurante</span>
+                    </li>
+                    <li class="action-item" onclick="exportarDados()">
+                        <div class="action-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <span>Exportar Dados</span>
+                    </li>
+                    <li class="action-item" onclick="location.href='{{ url_for('relatorio') }}'">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <span>Gerar Relatório</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="quick-actions">
+                <h4>Estatísticas Rápidas</h4>
+                <div class="kpi-card">
+                    <div class="kpi-value">{{ tipos_cozinha_count }}</div>
+                    <div class="kpi-label">Tipos de Cozinha</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edição -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Restaurante</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editNome" class="form-label">Nome do Restaurante</label>
+                        <input type="text" class="form-control" id="editNome" name="nome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEndereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control" id="editEndereco" name="endereco" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTipoCozinha" class="form-label">Tipo de Cozinha</label>
+                        <select class="form-control" id="editTipoCozinha" name="tipo_cozinha" required>
+                            <option value="">Selecione o tipo de cozinha</option>
+                            <option value="🍕 Italiana">🍕 Italiana</option>
+                            <option value="🍔 Americana">🍔 Americana</option>
+                            <option value="🍜 Japonesa">🍜 Japonesa</option>
+                            <option value="🌮 Mexicana">🌮 Mexicana</option>
+                            <option value="🥘 Brasileira">🥘 Brasileira</option>
+                            <option value="🥖 Francesa">🥖 Francesa</option>
+                            <option value="🍛 Indiana">🍛 Indiana</option>
+                            <option value="🥗 Mediterrânea">🥗 Mediterrânea</option>
+                            <option value="🍲 Chinesa">🍲 Chinesa</option>
+                            <option value="🥙 Árabe">🥙 Árabe</option>
+                            <option value="🍖 Churrascaria">🍖 Churrascaria</option>
+                            <option value="🐟 Frutos do Mar">🐟 Frutos do Mar</option>
+                            <option value="🥩 Steakhouse">🥩 Steakhouse</option>
+                            <option value="🍰 Confeitaria">🍰 Confeitaria</option>
+                            <option value="☕ Cafeteria">☕ Cafeteria</option>
+                            <option value="🍺 Pub">🍺 Pub</option>
+                            <option value="🍷 Bistrô">🍷 Bistrô</option>
+                            <option value="🌱 Vegetariana">🌱 Vegetariana</option>
+                            <option value="🥬 Vegana">🥬 Vegana</option>
+                            <option value="🍕 Pizzaria">🍕 Pizzaria</option>
+                            <option value="🍟 Fast Food">🍟 Fast Food</option>
+                            <option value="🍜 Asiática">🍜 Asiática</option>
+                            <option value="🥘 Regional">🥘 Regional</option>
+                            <option value="🍴 Contemporânea">🍴 Contemporânea</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o restaurante <strong id="deleteRestauranteName"></strong>?</p>
+                <p class="text-muted">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    const editForm = document.getElementById('editForm');
+    const editNome = document.getElementById('editNome');
+    const editEndereco = document.getElementById('editEndereco');
+    const editTipoCozinha = document.getElementById('editTipoCozinha');
+
+    let currentFilter = 'todos';
+    let searchTerm = '';
+    
+    const searchInput = document.getElementById('searchInput');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const tableBody = document.getElementById('restaurantesTableBody');
+
+    // Função para buscar e renderizar os restaurantes
+    function carregarRestaurantes() {
+        const url = `/api/restaurantes?filtro=${currentFilter}&busca=${encodeURIComponent(searchTerm)}`;
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                renderizarTabela(data);
+            })
+            .catch(error => {
+                console.error('Erro ao carregar restaurantes:', error);
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Erro ao carregar dados.</td></tr>';
+            });
+    }
+
+    // Função para renderizar a tabela
+    function renderizarTabela(restaurantes) {
+        tableBody.innerHTML = '';
+        if (restaurantes.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum restaurante encontrado.</td></tr>';
+            return;
+        }
+
+        restaurantes.forEach(r => {
+            const statusClass = r.ativo ? 'active' : 'inactive';
+            const statusText = r.ativo ? 'Ativo' : 'Inativo';
+            const row = `
+                <tr class="restaurant-row" data-status="${statusClass}">
+                    <td>
+                        <div class="restaurant-name">${r.nome}</div>
+                        <div class="restaurant-category">${r.tipo_cozinha}</div>
+                    </td>
+                    <td>${r.endereco}</td>
+                    <td>
+                        <button class="status-indicator ${statusClass}" onclick="alternarStatus(${r.id})">
+                            <i class="fas fa-circle"></i> ${statusText}
+                        </button>
+                    </td>
+                    <td>
+                        <div class="action-menu">
+                            <button class="action-btn" onclick="editarRestaurante(${r.id}, '${r.nome}', '${r.endereco}', '${r.tipo_cozinha}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn" onclick="confirmarExclusao(${r.id}, '${r.nome}')" title="Excluir">
+                                <i class="fas fa-trash text-danger"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    // Event listeners para os filtros
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.dataset.filter;
+            carregarRestaurantes();
+        });
+    });
+
+    // Event listener para a busca (com debounce)
+    let debounceTimer;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            searchTerm = this.value;
+            carregarRestaurantes();
+        }, 300); // 300ms de atraso
+    });
+
+
+    // Funções de ação (Editar, Excluir, etc.)
+    window.editarRestaurante = function(id, nome, endereco, tipoCozinha) {
+        editForm.action = `/editar_restaurante/${id}`;
+        editNome.value = nome;
+        editEndereco.value = endereco;
+        editTipoCozinha.value = tipoCozinha;
+        editModal.show();
+    };
+
+    window.confirmarExclusao = function(restauranteId, restauranteNome) {
+        mostrarModalConfirmacao(
+            'Confirmar Exclusão',
+            `Tem certeza que deseja excluir o restaurante "${restauranteNome}"? Esta ação não pode ser desfeita.`,
+            function() {
+                fetch(`/excluir_restaurante/${restauranteId}`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            mostrarModal('Sucesso!', data.message, 'sucesso');
+                            carregarRestaurantes(); // Recarrega a lista dinamicamente
+                        } else {
+                            mostrarModal('Erro!', data.message, 'erro');
+                        }
+                    });
+            },
+            'confirm-perigo'
+        );
+    };
+
+    window.alternarStatus = function(restauranteId) {
+        fetch(`/alternar_status/${restauranteId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    carregarRestaurantes(); // Recarrega a lista dinamicamente
+                } else {
+                    mostrarModal('Erro!', data.message, 'erro');
+                }
+            });
+    };
+
+    // Funções de placeholder
+    window.exportarDados = function() {
+        mostrarModalConfirmacao(
+            'Exportar para CSV',
+            'Deseja exportar a visualização atual da tabela para um arquivo CSV?',
+            function() {
+                const url = `/exportar_csv?filtro=${currentFilter}&busca=${encodeURIComponent(searchTerm)}`;
+                window.location.href = url;
+            },
+            'confirm-info'
+        );
+    };
+    
+    window.gerarRelatorio = function() {
+        mostrarModal('Funcionalidade Futura', 'A funcionalidade de gerar relatórios ainda não foi implementada.', 'info');
+    };
+
+    // Carga inicial dos dados
+    carregarRestaurantes();
+});
+</script>
+{% endblock %} 

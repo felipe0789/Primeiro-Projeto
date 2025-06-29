@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo 3 - Layout Dashboard Corporativo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* EXEMPLO 3: LAYOUT DASHBOARD CORPORATIVO */
+        :root {
+            --primary-blue: #1e40af;
+            --secondary-blue: #3b82f6;
+            --success-green: #059669;
+            --warning-orange: #d97706;
+            --danger-red: #dc2626;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+        }
+
+        /* Header Corporativo */
+        .corporate-header {
+            background: var(--white);
+            border-bottom: 2px solid var(--primary-blue);
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .company-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .company-info p {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin: 0;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gray-300);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-600);
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-section {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 0;
+        }
+
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 2rem 0;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--gray-600);
+            font-size: 1rem;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .kpi-icon.total { background: var(--primary-blue); }
+        .kpi-icon.active { background: var(--success-green); }
+        .kpi-icon.inactive { background: var(--warning-orange); }
+        .kpi-icon.growth { background: var(--secondary-blue); }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .kpi-trend {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .trend-up { color: var(--success-green); }
+        .trend-down { color: var(--danger-red); }
+
+        /* Main Content Area */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .main-panel {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            background: var(--gray-50);
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 300px;
+        }
+
+        .search-box input {
+            padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-600);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--gray-300);
+            background: var(--white);
+            color: var(--gray-700);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: var(--gray-50);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .data-table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .restaurant-name {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .restaurant-category {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .status-indicator.active {
+            background: #dcfce7;
+            color: var(--success-green);
+        }
+
+        .status-indicator.inactive {
+            background: #fef3c7;
+            color: var(--warning-orange);
+        }
+
+        .action-menu {
+            position: relative;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--gray-600);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .action-btn:hover {
+            background: var(--gray-100);
+            color: var(--gray-800);
+        }
+
+        /* Sidebar */
+        .sidebar-panel {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            height: fit-content;
+        }
+
+        .quick-actions {
+            padding: 1.5rem;
+        }
+
+        .quick-actions h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+        }
+
+        .action-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .action-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .action-item:hover {
+            color: var(--primary-blue);
+        }
+
+        .action-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gray-100);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #1e3a8a;
+            border-color: #1e3a8a;
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--gray-300);
+            color: var(--gray-700);
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+            
+            .data-table {
+                font-size: 0.9rem;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Corporativo -->
+    <header class="corporate-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="company-info">
+                        <h1>RestaurantApp</h1>
+                        <p>Sistema de Gestão Corporativa</p>
+                    </div>
+                </div>
+                <div class="user-section">
+                    <div class="text-end">
+                        <div class="fw-semibold">Administrador</div>
+                        <small class="text-muted">admin@empresa.com</small>
+                    </div>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-section">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Gestão de Restaurantes</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <div class="container">
+            <!-- Page Title -->
+            <div class="page-title">
+                <h2>Gestão de Restaurantes</h2>
+                <p class="page-subtitle">Monitore e gerencie todos os restaurantes do sistema</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon total">
+                            <i class="fas fa-store"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value">15</div>
+                    <div class="kpi-label">Total de Restaurantes</div>
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> +2 este mês
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon active">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value">12</div>
+                    <div class="kpi-label">Restaurantes Ativos</div>
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> 80% do total
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon inactive">
+                            <i class="fas fa-pause-circle"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Restaurantes Inativos</div>
+                    <div class="kpi-trend trend-down">
+                        <i class="fas fa-arrow-down"></i> 20% do total
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon growth">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value">+15%</div>
+                    <div class="kpi-label">Crescimento Mensal</div>
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> vs mês anterior
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Main Panel -->
+                <div class="main-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Lista de Restaurantes</h3>
+                        <div class="panel-actions">
+                            <button class="btn-outline">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                            <a href="#" class="btn-primary">
+                                <i class="fas fa-plus"></i> Novo Restaurante
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="toolbar">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Buscar restaurantes...">
+                        </div>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active">Todos</button>
+                            <button class="filter-btn">Ativos</button>
+                            <button class="filter-btn">Inativos</button>
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Restaurante</th>
+                                <th>Endereço</th>
+                                <th>Categoria</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">Pizzaria Bella Vista</div>
+                                    <div class="restaurant-category">Estabelecido em 2020</div>
+                                </td>
+                                <td>Rua das Flores, 123 - Centro</td>
+                                <td>
+                                    <span class="badge bg-secondary">Italiana</span>
+                                </td>
+                                <td>
+                                    <span class="status-indicator active">
+                                        <i class="fas fa-circle"></i> Ativo
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-menu">
+                                        <button class="action-btn">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">Sushi House</div>
+                                    <div class="restaurant-category">Estabelecido em 2019</div>
+                                </td>
+                                <td>Av. Principal, 456 - Jardins</td>
+                                <td>
+                                    <span class="badge bg-secondary">Japonesa</span>
+                                </td>
+                                <td>
+                                    <span class="status-indicator active">
+                                        <i class="fas fa-circle"></i> Ativo
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-menu">
+                                        <button class="action-btn">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">Burger King</div>
+                                    <div class="restaurant-category">Estabelecido em 2021</div>
+                                </td>
+                                <td>Shopping Center, Loja 45</td>
+                                <td>
+                                    <span class="badge bg-secondary">Fast Food</span>
+                                </td>
+                                <td>
+                                    <span class="status-indicator inactive">
+                                        <i class="fas fa-circle"></i> Inativo
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-menu">
+                                        <button class="action-btn">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar-panel">
+                    <div class="quick-actions">
+                        <h4>Ações Rápidas</h4>
+                        <ul class="action-list">
+                            <li class="action-item">
+                                <div class="action-icon">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <span>Adicionar Restaurante</span>
+                            </li>
+                            <li class="action-item">
+                                <div class="action-icon">
+                                    <i class="fas fa-file-export"></i>
+                                </div>
+                                <span>Exportar Relatório</span>
+                            </li>
+                            <li class="action-item">
+                                <div class="action-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <span>Ver Estatísticas</span>
+                            </li>
+                            <li class="action-item">
+                                <div class="action-icon">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <span>Configurações</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

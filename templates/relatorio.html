@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Gerar Relatório - RestaurantApp{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Title -->
+    <div class="page-title">
+        <h2>Gerador de Relatórios</h2>
+        <p class="page-subtitle">Configure e gere relatórios personalizados em PDF</p>
+    </div>
+
+    <!-- Painel de Configuração -->
+    <div class="main-panel" style="width: 100%; grid-column: span 2;">
+        <div class="panel-header">
+            <h3 class="panel-title">Configurações do Relatório</h3>
+        </div>
+        
+        <div class="panel-body">
+            <form action="{{ url_for('previa_relatorio') }}" method="POST" id="reportForm">
+                <div class="row">
+                    <!-- Filtro de Status -->
+                    <div class="col-md-6 mb-4">
+                        <label for="filtroStatus" class="form-label"><i class="fas fa-toggle-on"></i> Status do Restaurante</label>
+                        <select id="filtroStatus" name="status" class="form-control">
+                            <option value="todos" selected>Todos</option>
+                            <option value="ativo">Apenas Ativos</option>
+                            <option value="inativo">Apenas Inativos</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Data de Cadastro (Exemplo) -->
+                    <div class="col-md-6 mb-4">
+                        <label for="filtroData" class="form-label"><i class="fas fa-calendar-alt"></i> Intervalo de Datas</label>
+                        <div class="input-group">
+                            <input type="date" name="data_inicio" class="form-control" title="Data de Início">
+                            <span class="input-group-text">até</span>
+                            <input type="date" name="data_fim" class="form-control" title="Data de Fim">
+                        </div>
+                        <small class="form-text text-muted">Deixe em branco para incluir todas as datas.</small>
+                    </div>
+                </div>
+
+                <!-- Filtro por Tipo de Cozinha -->
+                <div class="mb-4">
+                    <label class="form-label"><i class="fas fa-utensils"></i> Tipos de Cozinha</label>
+                    <div class="filter-checkbox-group">
+                        {% for tipo in tipos_cozinha %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="tipos_cozinha" value="{{ tipo }}" id="tipo-{{ loop.index }}">
+                            <label class="form-check-label" for="tipo-{{ loop.index }}">{{ tipo }}</label>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">Nenhum tipo de cozinha cadastrado.</p>
+                        {% endfor %}
+                    </div>
+                    <small class="form-text text-muted">Selecione os tipos de cozinha a serem incluídos. Deixe todos desmarcados para incluir todos.</small>
+                </div>
+
+                <div class="modal-footer">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> Gerar Pré-visualização
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RestaurantApp - Sistema de Gestão{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Header Corporativo -->
+    <header class="corporate-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="company-info">
+                        <h1>RestaurantApp</h1>
+                        <p>Sistema de Gestão Corporativa</p>
+                    </div>
+                </div>
+                {% if current_user.is_authenticated %}
+                <div class="user-section">
+                    <div class="text-end">
+                        <div class="fw-semibold">{{ current_user.username.title() }}</div>
+                        <small class="text-muted">Administrador</small>
+                    </div>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="dropdown ms-2">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i>Meu Perfil</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% if current_user.is_authenticated %}
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-section">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    {% block breadcrumb %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Gestão de Restaurantes</li>
+                    {% endblock %}
+                </ol>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {% if category == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif category == 'danger' or category == 'error' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif category == 'warning' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif category == 'info' %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% if current_user.is_authenticated %}
+    <footer class="corporate-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 RestaurantApp. Sistema de Gestão Corporativa.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">Versão 1.0.0 | Última atualização: 28/06/2024</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endif %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    {% block scripts %}{% endblock %}
+
+    <!-- Modal de Notificação Genérico -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" id="notificationModalHeader">
+                    <h5 class="modal-title" id="notificationModalLabel"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="notificationModalBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação Genérico -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmationModalBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmationModalConfirmBtn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay Global -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p class="mt-3">Processando...</p>
+        </div>
+    </div>
+    
+    <script>
+        function mostrarModal(titulo, mensagem, tipo = 'info') {
+            const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+            const modalHeader = document.getElementById('notificationModalHeader');
+            const modalTitle = document.getElementById('notificationModalLabel');
+            const modalBody = document.getElementById('notificationModalBody');
+
+            modalTitle.textContent = titulo;
+            modalBody.textContent = mensagem;
+
+            // Remove classes de cor anteriores
+            modalHeader.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-info');
+
+            // Adiciona a classe de cor apropriada
+            if (tipo === 'success') {
+                modalHeader.classList.add('bg-success', 'text-white');
+            } else if (tipo === 'danger') {
+                modalHeader.classList.add('bg-danger', 'text-white');
+            } else if (tipo === 'warning') {
+                modalHeader.classList.add('bg-warning', 'text-dark');
+            } else {
+                modalHeader.classList.add('bg-info', 'text-white');
+            }
+            
+            modal.show();
+        }
+
+        function mostrarModalConfirmacao(titulo, mensagem, callback) {
+            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            const modalTitle = document.getElementById('confirmationModalLabel');
+            const modalBody = document.getElementById('confirmationModalBody');
+            const confirmBtn = document.getElementById('confirmationModalConfirmBtn');
+
+            modalTitle.textContent = titulo;
+            modalBody.textContent = mensagem;
+
+            const confirmHandler = () => {
+                callback();
+                modal.hide();
+                confirmBtn.removeEventListener('click', confirmHandler);
+            };
+
+            confirmBtn.addEventListener('click', confirmHandler, { once: true });
+            
+            modal.show();
+        }
+    </script>
+</body>
+</html> 

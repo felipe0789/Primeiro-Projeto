@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Restaurantes</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .container {
+            width: 100%;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            color: #aaa;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Relatório de Restaurantes</h1>
+            <p>Gerado em: {{ data_geracao.strftime('%d/%m/%Y às %H:%M:%S') }}</p>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Restaurante</th>
+                    <th style="width: 50%;">Endereço</th>
+                    <th style="width: 20%;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for restaurante in restaurantes %}
+                <tr>
+                    <td>
+                        <strong>{{ restaurante.nome }}</strong><br>
+                        <small>{{ restaurante.tipo_cozinha }}</small>
+                    </td>
+                    <td>{{ restaurante.endereco }}</td>
+                    <td class="{{ 'status-active' if restaurante.ativo else 'status-inactive' }}">
+                        {{ 'Ativo' if restaurante.ativo else 'Inativo' }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center;">Nenhum restaurante encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="footer">
+            RestaurantApp - Gerenciado por {{ current_user.username }}
+        </div>
+    </div>
+</body>
+</html> 
