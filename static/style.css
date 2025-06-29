@@ -1030,11 +1030,61 @@ body.tema-escuro .account-info {
 }
 
 #confirmationModal .btn-primary {
-    background-color: var(--danger-red);
-    border-color: var(--danger-red);
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
 }
 
 #confirmationModal .btn-primary:hover {
-    background-color: #b91c1c; /* Um vermelho mais escuro */
-    border-color: #b91c1c;
+    background-color: #1c3899; /* Um pouco mais escuro que o --primary-blue */
+    border-color: #1c3899;
+}
+
+/* ===== PAGINATION STYLES ===== */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--gray-200);
+    background-color: var(--gray-50);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.pagination {
+    margin: 0;
+}
+
+.page-item .page-link {
+    color: var(--primary-blue);
+    border: 1px solid var(--gray-300);
+    margin: 0 2px;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+}
+
+.page-item .page-link:hover {
+    background-color: var(--gray-100);
+    color: var(--primary-blue);
+    border-color: var(--gray-400);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: var(--white);
+    font-weight: 600;
+    z-index: 1;
+}
+
+.page-item.disabled .page-link {
+    color: var(--gray-300);
+    background-color: var(--white);
+    border-color: var(--gray-200);
+    cursor: not-allowed;
 }

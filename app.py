@@ -199,15 +199,17 @@ def excluir_restaurante(restaurante_id):
             'message': 'Erro ao excluir restaurante'
         }), 500
 
-# Rota de API para buscar e filtrar restaurantes
+# Rota para API para buscar e filtrar restaurantes
 @app.route('/api/restaurantes')
 @login_required
 def api_restaurantes():
     termo_busca = request.args.get('busca', '').strip()
     filtro_status = request.args.get('filtro', 'todos')
-    
+    page = request.args.get('page', 1, type=int)
+    per_page = 10 # Define quantos restaurantes por página
+
     query = Restaurante.query
-    
+
     # Aplicar filtro de busca, se houver
     if termo_busca:
         query = query.filter(
@@ -217,15 +219,16 @@ def api_restaurantes():
                 Restaurante.tipo_cozinha.ilike(f'%{termo_busca}%')
             )
         )
-    
+
     # Aplicar filtro de status
     if filtro_status == 'ativo':
         query = query.filter_by(ativo=True)
     elif filtro_status == 'inativo':
         query = query.filter_by(ativo=False)
-    
-    restaurantes_filtrados = query.order_by(Restaurante.nome).all()
-    
+
+    paginacao = query.order_by(Restaurante.nome).paginate(page=page, per_page=per_page, error_out=False)
+    restaurantes_paginados = paginacao.items
+
     # Converter para formato JSON
     resultados = [{
         'id': r.id,
@@ -233,9 +236,16 @@ def api_restaurantes():
         'endereco': r.endereco,
         'tipo_cozinha': r.tipo_cozinha,
         'ativo': r.ativo
-    } for r in restaurantes_filtrados]
-    
-    return jsonify(resultados)
+    } for r in restaurantes_paginados]
+
+    return jsonify({
+        'restaurantes': resultados,
+        'total_restaurantes': paginacao.total,
+        'total_paginas': paginacao.pages,
+        'pagina_atual': paginacao.page,
+        'tem_pagina_anterior': paginacao.has_prev,
+        'tem_proxima_pagina': paginacao.has_next
+    })
 
 # Rota para obter estatísticas
 @app.route('/estatisticas')

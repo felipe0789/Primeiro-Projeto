@@ -129,6 +129,16 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-container">
+                    <span class="pagination-info" id="paginationInfo"></span>
+                    <nav>
+                        <ul class="pagination" id="paginationControls">
+                            <!-- Os botões de paginação serão inseridos aqui pelo JavaScript -->
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
 
@@ -259,23 +269,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let currentFilter = 'todos';
     let searchTerm = '';
+    let currentPage = 1;
     
     const searchInput = document.getElementById('searchInput');
     const filterButtons = document.querySelectorAll('.filter-btn');
     const tableBody = document.getElementById('restaurantesTableBody');
+    const paginationControls = document.getElementById('paginationControls');
+    const paginationInfo = document.getElementById('paginationInfo');
 
     // Função para buscar e renderizar os restaurantes
     function carregarRestaurantes() {
-        const url = `/api/restaurantes?filtro=${currentFilter}&busca=${encodeURIComponent(searchTerm)}`;
+        const url = `/api/restaurantes?filtro=${currentFilter}&busca=${encodeURIComponent(searchTerm)}&page=${currentPage}`;
         
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                renderizarTabela(data);
+                renderizarTabela(data.restaurantes);
+                renderizarPaginacao(data);
             })
             .catch(error => {
                 console.error('Erro ao carregar restaurantes:', error);
                 tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Erro ao carregar dados.</td></tr>';
+                paginationControls.innerHTML = '';
+                paginationInfo.innerHTML = '';
             });
     }
 
@@ -318,12 +334,46 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Função para renderizar os controles de paginação
+    function renderizarPaginacao(data) {
+        paginationControls.innerHTML = '';
+        if (data.total_paginas <= 1) {
+            paginationInfo.innerHTML = '';
+            return;
+        }
+
+        const startItem = (data.pagina_atual - 1) * 10 + 1;
+        const endItem = Math.min(startItem + 9, data.total_restaurantes);
+        paginationInfo.textContent = `Mostrando ${startItem}-${endItem} de ${data.total_restaurantes} restaurantes`;
+
+        // Botão "Anterior"
+        let li = `<li class="page-item ${data.tem_pagina_anterior ? '' : 'disabled'}">
+                      <a class="page-link" href="#" data-page="${data.pagina_atual - 1}">&laquo;</a>
+                  </li>`;
+        paginationControls.insertAdjacentHTML('beforeend', li);
+
+        // Botões de página
+        for (let i = 1; i <= data.total_paginas; i++) {
+            li = `<li class="page-item ${i === data.pagina_atual ? 'active' : ''}">
+                      <a class="page-link" href="#" data-page="${i}">${i}</a>
+                  </li>`;
+            paginationControls.insertAdjacentHTML('beforeend', li);
+        }
+
+        // Botão "Próximo"
+        li = `<li class="page-item ${data.tem_proxima_pagina ? '' : 'disabled'}">
+                  <a class="page-link" href="#" data-page="${data.pagina_atual + 1}">&raquo;</a>
+              </li>`;
+        paginationControls.insertAdjacentHTML('beforeend', li);
+    }
+
     // Event listeners para os filtros
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             currentFilter = this.dataset.filter;
+            currentPage = 1; // Reseta para a primeira página ao aplicar filtro
             carregarRestaurantes();
         });
     });
@@ -334,10 +384,24 @@ document.addEventListener('DOMContentLoaded', function () {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
             searchTerm = this.value;
+            currentPage = 1; // Reseta para a primeira página ao buscar
             carregarRestaurantes();
         }, 300); // 300ms de atraso
     });
 
+    // Event listener para os controles de paginação
+    paginationControls.addEventListener('click', function(event) {
+        event.preventDefault();
+        const target = event.target;
+
+        if (target.tagName === 'A' && !target.closest('.page-item.disabled')) {
+            const page = parseInt(target.dataset.page, 10);
+            if (page !== currentPage) {
+                currentPage = page;
+                carregarRestaurantes();
+            }
+        }
+    });
 
     // Funções de ação
     function editarRestaurante(id, nome, endereco, tipoCozinha) {
