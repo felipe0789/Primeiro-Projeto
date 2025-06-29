@@ -19,6 +19,9 @@
                 <p class="page-subtitle">Visualize e edite suas informações pessoais e de segurança.</p>
             </div>
             <div class="page-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for('index') }}'">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </button>
                 <button type="button" class="btn btn-outline-secondary" id="btnAlterarSenha" data-bs-toggle="modal" data-bs-target="#alterarSenhaModal">
                     <i class="fas fa-key me-2"></i>Alterar Senha
                 </button>
@@ -173,6 +176,48 @@ document.addEventListener('DOMContentLoaded', function() {
             showAlert('Ocorreu um erro inesperado. Tente novamente.', 'danger');
         });
     });
+
+    // Lógica para Máscaras e Formatação de Campos
+    const camposMaiusculos = ['nome_completo', 'endereco'];
+    camposMaiusculos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+    });
+
+    const telefoneEl = document.getElementById('telefone');
+    if (telefoneEl) {
+        const telefoneMask = IMask(telefoneEl, {
+            mask: [
+                {
+                    mask: '(00) 0000-0000',
+                    lazy: false
+                },
+                {
+                    mask: '(00) 00000-0000',
+                    lazy: false
+                }
+            ]
+        });
+    }
+
+    const cpfCnpjEl = document.getElementById('cpf_cnpj');
+    if (cpfCnpjEl) {
+        const cpfCnpjMask = IMask(cpfCnpjEl, {
+            mask: [
+                {
+                    mask: '000.000.000-00',
+                    maxLength: 11
+                },
+                {
+                    mask: '00.000.000/0000-00'
+                }
+            ]
+        });
+    }
 });
 </script>
 {% endblock %} 

@@ -717,14 +717,12 @@ select.form-control option {
 
 /* ===== PÁGINA DE CONFIGURAÇÕES ===== */
 .page-header {
-    background-color: #3b5998; /* Azul corporativo */
-    color: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    background-image: linear-gradient(135deg, #3b5998 0%, #2c4a8a 100%);
     position: relative;
+    padding: 2rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    color: var(--white);
+    margin-bottom: 2rem;
     overflow: hidden;
 }
 
@@ -732,39 +730,43 @@ select.form-control option {
     content: '';
     position: absolute;
     top: -50%;
-    left: -50%;
+    left: -20%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%);
-    transform: rotate(30deg);
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    transform: rotate(15deg);
+    z-index: 0;
+}
+
+.page-header .page-title,
+.page-header .page-subtitle,
+.page-header .page-actions {
+    position: relative;
+    z-index: 1;
 }
 
 .page-header .page-title {
-    font-size: 2.25rem;
+    font-size: 1.75rem;
     font-weight: 700;
     margin: 0;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 .page-header .page-subtitle {
-    font-size: 0.95rem; /* Aumentado para melhor legibilidade */
-    color: #E0E0E0; /* Cor mais clara para contraste */
-    margin-top: 0.5rem;
-    opacity: 0.9;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+    opacity: 1;
+    color: var(--gray-100);
 }
 
 .page-header .page-actions .btn {
-    font-size: 0.875rem;
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
 }
 
 .page-actions {
     display: flex;
-    gap: 1rem;
-}
-
-.page-actions .btn {
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
+    gap: 0.75rem;
+    align-items: center;
 }
 
 .page-actions .btn:hover {
